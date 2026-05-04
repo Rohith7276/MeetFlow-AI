@@ -6,28 +6,41 @@
 
 @layer base {
   body {
+<<<<<<< HEAD
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+=======
     @apply bg-slate-50 text-slate-900 transition-all duration-300;
+>>>>>>> upstream/main
     font-family: 'Inter', sans-serif;
   }
   
   .dark body {
     @apply bg-dark-bg text-slate-100;
   }
+<<<<<<< HEAD
+=======
 
   /* Smooth scrolling for better UX */
   html {
     scroll-behavior: smooth;
   }
+>>>>>>> upstream/main
 }
 
 @layer utilities {
   .glass {
+<<<<<<< HEAD
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+=======
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg transition-all duration-300;
+>>>>>>> upstream/main
   }
   
   .dark .glass {
     @apply bg-dark-card/70 backdrop-blur-md border border-slate-700/50 shadow-slate-900/50;
   }
+<<<<<<< HEAD
+=======
 
   /* NEW: Hover lift effect (safe utility) */
   .hover-lift {
@@ -38,19 +51,33 @@
   .gradient-text {
     @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent;
   }
+>>>>>>> upstream/main
 }
 
 /* Custom Scrollbar for sleek UI */
 ::-webkit-scrollbar {
+<<<<<<< HEAD
+  width: 6px;
+=======
   width: 8px; /* slightly improved */
+>>>>>>> upstream/main
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
+<<<<<<< HEAD
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+=======
   background: linear-gradient(to bottom, #cbd5e1, #94a3b8); /* nicer gradient */
   border-radius: 10px;
 }
 .dark ::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, #475569, #1e293b);
 }
+>>>>>>> upstream/main

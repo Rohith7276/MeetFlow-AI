@@ -164,13 +164,89 @@ app.post('/api/ai/audio-query', upload.single('audio'), async (req, res) => {
 });
 
 /* ============================ WEBRTC SIGNALING ============================ */
+<<<<<<< HEAD
+function extractName(text) {
+  const parts = text.split(" by ");
+  return parts.length > 1 ? parts[1].split(" ")[0] : "Unassigned";
+}
+
+function extractTime(text) {
+  return text.includes("tomorrow") ? "Tomorrow" : "No deadline";
+}
+
+function detectAction(text) {
+  if (
+    text.includes("complete") ||
+    text.includes("submit") ||
+    text.includes("meeting") ||
+    text.includes("by")
+  ) {
+    return {
+      task: text,
+      assignee: extractName(text),
+      deadline: extractTime(text)
+    };
+  }
+  return null;
+}
+
 const rooms = {};
 
+// --- New Username Mappings ---
+const userMap = {}; // socket.id -> username
+const nameToSocket = {}; // username -> socket.id
+
+=======
+const rooms = {};
+
+>>>>>>> upstream/main
 io.on("connection", (socket) => {
   const userAgent = socket.handshake.headers['user-agent'] || 'Unknown Device';
   const deviceType = /Mobi|Android/i.test(userAgent) ? 'Mobile' : 'Desktop';
   console.log(`⚡ User connected: ${socket.id} | Device: ${deviceType} (${userAgent})`);
 
+<<<<<<< HEAD
+    // --- New Event: join-meeting-user ---
+  socket.on("join-meeting-user", ({ meetingId, username }) => {
+    userMap[socket.id] = username;
+    nameToSocket[username] = socket.id;
+
+    io.emit("user-joined-info", {
+      socketId: socket.id,
+      username: username
+    });
+    
+    // Using all-users-data instead of all-users to prevent breaking WebRTC handler
+    socket.emit("all-users-data", userMap);
+
+    if (meetingsStore[meetingId]) {
+      if (!meetingsStore[meetingId].host) {
+        meetingsStore[meetingId].host = username;
+      }
+
+      const isHost = username === meetingsStore[meetingId].host;
+
+      socket.emit("user-role", {
+        username,
+        isHost
+      });
+
+      io.emit("host-info", {
+        hostName: meetingsStore[meetingId].host
+      });
+
+      if (!meetingsStore[meetingId].participants) {
+        meetingsStore[meetingId].participants = [];
+      }
+      const existing = meetingsStore[meetingId].participants.find(p => p.name === username);
+      if (!existing) {
+        meetingsStore[meetingId].participants.push({ id: socket.id, name: username });
+      }
+    }
+  });
+
+=======
+>>>>>>> upstream/main
   socket.on("join-room", async ({ roomId, userName, secretKey }) => {
     // 1. Strict Validation
     let meeting = meetingsStore[roomId];
@@ -238,10 +314,42 @@ io.on("connection", (socket) => {
   /* === TRANSCRIPTIONS === */
   socket.on("send-transcript", async (data) => {
     try {
+<<<<<<< HEAD
+      console.log("Transcript sent:", data);
+      
+      if (mongoose.connection.readyState === 1) {
+        await new Transcript({ meetingId: data.meetingId, speaker: data.speaker, text: data.text }).save();
+      }
+      
+      // Ensure we always broadcast to room so everyone sees it
+      io.emit("receive-transcript", data);
+      
+      // ADD SIMPLE ACTION DETECTOR
+      const action = detectAction(data.text);
+      if (action) {
+        console.log("Action detected:", action);
+        let newAction = new ActionItem({
+          meetingId: data.meetingId,
+          task: action.task,
+          assignee: action.assignee || "Unassigned",
+          deadline: action.deadline || "No deadline"
+        });
+        
+        if (mongoose.connection.readyState === 1) {
+          newAction = await newAction.save();
+        } else {
+          newAction = { ...action, meetingId: data.meetingId, _id: Date.now() };
+        }
+        
+        io.to(data.meetingId).emit("receive-action", newAction);
+      }
+
+=======
       if (mongoose.connection.readyState === 1) {
         await new Transcript({ meetingId: data.meetingId, speaker: data.speaker, text: data.text }).save();
       }
       socket.to(data.meetingId).emit("receive-transcript", data);
+>>>>>>> upstream/main
       const tasks = extractActionItems(data.text);
       if (tasks) {
         for (const task of tasks) {
@@ -362,6 +470,18 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+<<<<<<< HEAD
+    // --- Remove user from mappings ---
+    const username = userMap[socket.id];
+    if (username) {
+      delete nameToSocket[username];
+      delete userMap[socket.id];
+    }
+
+    io.emit("user-left", socket.id);
+
+=======
+>>>>>>> upstream/main
     const roomId = socket.roomId;
     if (roomId) {
       // 1. Clean up rooms list
